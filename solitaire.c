@@ -1,48 +1,48 @@
 /* Solitaire (Klondike) */
 
-/*
+/*==========================================================
+
+  The basic logic of this implementation of solitaire is as follows:
+
   1. Shuffle a deck of 52 cards.
 
-  2. Dealing from the top of the deck, make seven piles (tableaus) of
-  cards.  The pile number (1, 2, 3, 4, 5, 6, or 7) must contain a
-  number of cards equal to the pile number (1 card in pile 1, 2 cards
-  in pile 2, etc.).  The top card of each tableau pile faces up.
+  2. Dealing from the top of the deck, make seven piles (tableaus) of cards. The
+  pile number (1, 2, 3, 4, 5, 6, or 7) must contain a number of cards equal to
+  the pile number (1 card in pile 1, 2 cards in pile 2, etc.). The top card of
+  each tableau pile faces up.
 
   3. Reserve four empty piles (foundations).
 
-  4. Reserve another pile (waste) into which the remaining cards are
-  to be dealt.
+  4. Reserve another pile (waste) into which the remaining cards are to be
+  dealt.
 
-  5. The remaining cards are called the stack, the top card of which
-  is face down like the rest.
+  5. The remaining cards are called the stock, the top card of which is face
+  down like the rest.
 
   6. Get input from the user (game begins here).
 
-  7. Input takes the form of <label><label>. The piles are labeled in
-  the output as w (waste); f1, f2, f3, f4 (foundations); t1, t2, t3,
-  t4, t5, t6, t7 (tableaus).
+  7. Input takes the form of <label><label>. The piles are labeled in the output
+  as w (waste); f1, f2, f3, f4 (foundations); t1, t2, t3, t4, t5, t6, t7
+  (tableaus).
 
   8. The following are valid input:
 
-  a) [w|f#|t#]t# if either (the rank of the source is one less than
-  the rank of the destination) and (either (the suit of the source is
-  a spade or club if the destination is a heart or diamond) or (the
-  suit of the source is a heart or diamond if the destination is a
-  spade or club)) or the source is a king and the destination is
-  empty.
+  a) [w|f#|t#]t# if either (the rank of the source is one less than the rank of
+  the destination) and (either (the suit of the source is a spade or club if the
+  destination is a heart or diamond) or (the suit of the source is a heart or
+  diamond if the destination is a spade or club)) or the source is a king and
+  the destination is empty.
 
-  b) [w|f#|t#]f# if the source is of the same suit as the destination
-  and the source's rank is one higher than that of the destination's
-  rank.
+  b) [w|f#|t#]f# if the source is of the same suit as the destination and the
+  source's rank is one higher than that of the destination's rank.
 
-  9. The other form of valid input is simply a 'd', which deals a
-  single card from the stack to the waste.
+  9. The other form of valid input is simply a 'd', which deals a single card
+  from the stock to the waste.
 
-  10. The game is won if each of the four foundations contains 13
-  cards (which means that the stock, waste, and tableaus will be
-  empty).
+  10. The game is won if each of the four foundations contains 13 cards (which
+  means that the stock, waste, and tableaus will be empty).
 
-*/
+===========================================================*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -76,7 +76,7 @@ struct pile_type {
   int pointer;
 };
 
-struct pile_type stack, waste, tab[7], fnd[4], temppile;
+struct pile_type stock, waste, tab[7], fnd[4], temppile;
 struct pile_type *srcp, *destp;
 
 char rank_value[] = {'A','2','3','4','5','6','7','8','9','0','J','Q','K'};
@@ -94,8 +94,8 @@ int exec_input(char s[]);
 int verify_input(char s[]);
 int move_card(struct pile_type *srcp, struct pile_type *destp, char destc);
 void init_curses();
-void push(struct card_type card, struct pile_type *stack);
-struct card_type pop(struct pile_type *stack);
+void push(struct card_type card, struct pile_type *stock);
+struct card_type pop(struct pile_type *stock);
 void print_info();
 int get_rank_value(struct card_type card);
 int get_suit_value (struct card_type card);
@@ -130,8 +130,8 @@ int move_card(struct pile_type *srcp, struct pile_type *destp, char destc)
   card_src = srcp->pile[(srcp->pointer)-1];
   card_dest = destp->pile[(destp->pointer)-1];
 
-  /* Do not permit moving a face-down card, unless it's from the stack. */
-  if (srcp != &stack && !card_src.faceup)
+  /* Do not permit moving a face-down card, unless it's from the stock. */
+  if (srcp != &stock && !card_src.faceup)
 	return 0;
 
   /* If moving to a tableau: */
@@ -162,7 +162,7 @@ int move_card(struct pile_type *srcp, struct pile_type *destp, char destc)
 	  return 1;
 	}
   }
-  /* If moving to the waste (only possible when dealing from the stack), move
+  /* If moving to the waste (only possible when dealing from the stock), move
 	 in any case and turn the new top waste card up and the previous one down. */
   else if (destc == 'w') {
 	push(pop(srcp), destp);
@@ -185,10 +185,10 @@ int verify_input(char s[])
 	 (none is fine too, this defaults to one card). */
   while (isdigit(c = s[i]))
 	i++;
-  /* If the first letter is a 'd' (deal), then point to the stack and
+  /* If the first letter is a 'd' (deal), then point to the stock and
 	 waste as respective source and destination. Nothing should follow. */
   if ((c = s[i++]) == 'd' && s[i] == '\0') {
-	srcp = &stack;
+	srcp = &stock;
 	destp = &waste;
 	destc = 'w';
 	return 1;
@@ -236,8 +236,11 @@ int verify_input(char s[])
   }
   /* If the first letter is a 'u' (upturn): */
   if (c == 'u')
+	/* Make sure there are no preceding digits. */
+	if (i > 1)
+	  return 0;
 	/* The next letter has to be a 't' for tableau since you can't turn
-	   over cards in other piles (except when a stack card turns over onto
+	   over cards in other piles (except when a stock card turns over onto
 	   the waste pile, which happens automatically). */
 	if ((c = s[i++]) == 't')
 	  /* Digit indicating which tableau. */
@@ -250,7 +253,7 @@ int verify_input(char s[])
 int exec_input(char s[])
 {
   int n;
-  int i, j, k;
+  int i;
   int mult;
   char multstr[2];
 
@@ -275,16 +278,15 @@ int exec_input(char s[])
   }
   /* 1 returned means deal. */
   else if (n == 1) {
-	/* If the stack is empty, then the waste becomes the new stack. */
-	if (stack.pointer == 0) {
-	  //stack.pointer = waste.pointer;
-	  int x;
-	  for (x = waste.pointer - 1; x >= 0; x--) {
-	  	push(waste.pile[x], &stack);
+	/* If the stock is empty, then the waste becomes the new stock. */
+	if (stock.pointer == 0) {
+	  //stock.pointer = waste.pointer;
+	  for (i = waste.pointer - 1; i >= 0; i--) {
+	  	push(waste.pile[i], &stock);
 	  }
 	  waste.pointer = 0;
 	}
-	/* Move card from the stack to the waste. */
+	/* Move card from the stock to the waste. */
 	move_card(srcp, destp, destc);
   }
   /* 2 returned means move from waste to tableau or foundation. */
@@ -298,14 +300,14 @@ int exec_input(char s[])
 	if (mult == 0)
 	  mult++;
 	/* Move mult cards from the source pile to temppile. */
-	for (k = 0; k < mult; k++)
+	for (i = 0; i < mult; i++)
 	  push(pop(srcp), &temppile);
 	/* Move the temppile to the destination pile, but undo the process
 	   if one of the cards is not permitted to move. */
-	for (k = 0; k < mult; k++) {
+	for (i = 0; i < mult; i++) {
 	  if (!move_card(&temppile, destp, destc)) {
 		srcp->pointer += mult;
-		destp->pointer -= k;
+		destp->pointer -= i;
 		break;
 	  }
 	}
@@ -314,8 +316,8 @@ int exec_input(char s[])
   else if (n == 4) {
 	/* Get the tableau digit from the string (which should look like
 	   'ut3'), convert it to a number, reduce by one for index. */
-	j = (s[i+2] - '0') - 1;
-	tab[j].pile[tab[j].pointer - 1].faceup = true;
+	i = (s[2] - '0') - 1;
+	tab[i].pile[tab[i].pointer - 1].faceup = true;
   }
 }
 
@@ -331,16 +333,16 @@ int get_input(char s[])
   return (s[0] != 'q');
 }
 
-void push(struct card_type card, struct pile_type *stack)
+void push(struct card_type card, struct pile_type *stock)
 {
   int i;
 
-  stack->pile[stack->pointer++] = card;
+  stock->pile[stock->pointer++] = card;
 }
 
-struct card_type pop(struct pile_type *stack)
+struct card_type pop(struct pile_type *stock)
 {
-  return stack->pile[(stack->pointer--)-1];
+  return stock->pile[(stock->pointer--)-1];
 }
 
 int get_suit_value (struct card_type card)
@@ -380,9 +382,9 @@ void shuffle()
 
 /* Initialize the piles of cards necessary to gameplay: the seven
    tableaus (those piles on which one builds up successive ranks of
-   alternating suits), the stack (the general resource from which
+   alternating suits), the stock (the general resource from which
    cards are drawn), the waste (the pile onto which one card at a time
-   is drawn from the stack, the topmost being playable), the
+   is drawn from the stock, the topmost being playable), the
    foundations (the four piles which it is one's goal to fill with
    like-suited successively ranked cards), and finally a temporary
    pile which is necessary for the underlying logic but does not
@@ -408,17 +410,17 @@ void init_deal()
 	tab[i].pointer = i + 1;
   }
 
-  /* Fill the stack with the remaining cards from the deck. None
+  /* Fill the stock with the remaining cards from the deck. None
 	 should be face-up. */
   i = 0;
   while (deckp >= 0) {
-	stack.pile[i++] = deck[deckp--];
-	stack.pile[i-1].faceup = false;
+	stock.pile[i++] = deck[deckp--];
+	stock.pile[i-1].faceup = false;
   }
 
   /* Set up four empty foundations, one empty waste, and one empty
 	 temppile. */
-  stack.pointer = i;
+  stock.pointer = i;
   for (i = 0; i < 4; i++)
 	fnd[i].pointer = 0;
   waste.pointer = 0;
@@ -439,25 +441,25 @@ void search_doubles()
    pile, consisting of a row of square-bracket-enclosed two-character
    card representations, the first character being the rank and the
    second the suit. */
-void print_pile(struct pile_type *stack)
+void print_pile(struct pile_type *stock)
 {
   int i;
-  /* Iterate as far as the pointer points in the stack. Print full
+  /* Iterate as far as the pointer points in the stock. Print full
 	 information for face-up cards, and empty brackets for non-face-up
 	 cards. */
-  for (i = 0; i < stack->pointer; i++) {
-	total_cards.pile[total_cards_count++] = stack->pile[i];
-	if (stack->pile[i].faceup == false)
-	  //printw("[%c%c]", stack->pile[i].rank, stack->pile[i].suit);
+  for (i = 0; i < stock->pointer; i++) {
+	total_cards.pile[total_cards_count++] = stock->pile[i];
+	if (stock->pile[i].faceup == false)
+	  //printw("[%c%c]", stock->pile[i].rank, stock->pile[i].suit);
 	  printw("[  ]");
 	else {
-	  if (stack->pile[i].suit == 'H' || stack->pile[i].suit == 'D') {
+	  if (stock->pile[i].suit == 'H' || stock->pile[i].suit == 'D') {
 		attron(COLOR_PAIR(1));
-		printw("[%c%c]", stack->pile[i].rank, stack->pile[i].suit);
+		printw("[%c%c]", stock->pile[i].rank, stock->pile[i].suit);
 		attroff(COLOR_PAIR(1));
 	  }
 	  else {
-		printw("[%c%c]", stack->pile[i].rank, stack->pile[i].suit);
+		printw("[%c%c]", stock->pile[i].rank, stock->pile[i].suit);
 	  }
 	}
   }
@@ -472,8 +474,8 @@ void print_info()
   total_cards_count = 0;
 
   clear();
-  print_pile(&stack);
-  printw("\nSTACK\n\n");
+  print_pile(&stock);
+  printw("\nSTOCK\n\n");
   print_pile(&waste);
   printw("\nWASTE\n\n");
   for (i = 0; i < 7; i++) {

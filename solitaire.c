@@ -6,10 +6,10 @@
  *
  * 1. Shuffle a deck of 52 cards.
 
- * 2. Dealing from the top of the deck, make seven piles (tableaus) of cards. The
- * pile number (1, 2, 3, 4, 5, 6, or 7) must contain a number of cards equal to
- * the pile number (1 card in pile 1, 2 cards in pile 2, etc.). The top card of
- * each tableau pile faces up.
+ * 2. Dealing from the top of the deck, make seven piles (tableaus) of cards.
+ * The pile number (1, 2, 3, 4, 5, 6, or 7) must contain a number of cards
+ * equal to the pile number (1 card in pile 1, 2 cards in pile 2, etc.). The
+ * top card of each tableau pile faces up.
  * 
  * 3. Reserve four empty piles (foundations).
  * 
@@ -21,25 +21,32 @@
  * 
  * 6. Get input from the user (game begins here).
  * 
- * 7. Input takes the form of <label><label>. The piles are labeled in the output
- * as w (waste); f1, f2, f3, f4 (foundations); t1, t2, t3, t4, t5, t6, t7
- * (tableaus).
+ * 7. Input takes the form of <label><label>. The piles are labeled in the
+ * output as w (waste); f1, f2, f3, f4 (foundations); t1, t2, t3, t4, t5, t6,
+ * t7 (tableaus).
  * 
- * 8. The following are valid input:
+ * 8. The following are valid input, where angle brackets contain necessary
+ * input, square brackets contain optional input, the bar symbol separates
+ * exclusive possible inputs, and the pound sign is a literal number:
  * 
- * a) [w|f#|t#]t# if either (the rank of the source is one less than the rank of
- * the destination) and (either (the suit of the source is a spade or club if the
- * destination is a heart or diamond) or (the suit of the source is a heart or
- * diamond if the destination is a spade or club)) or the source is a king and
- * the destination is empty.
+ * a) [#]<w|f#|t#><t#> if either (the rank of the source is one less than the
+ * rank of the destination) and (either (the suit of the source is a spade or
+ * club if the destination is a heart or diamond) or (the suit of the source is
+ * a heart or diamond if the destination is a spade or club)) or the source is
+ * a king and the destination is empty. The initial, optional number indicates
+ * how many cards you would like to move at once and that the bottom card of
+ * that specified block is the source card against which the above conditions
+ * are tested. No number specified defaults to one.
  * 
- * b) [w|f#|t#]f# if the source is of the same suit as the destination and the
- * source's rank is one higher than that of the destination's rank.
+ * b) <w|f#|t#><f#> if the source is of the same suit as the destination and the
+ * source's rank is one higher than that of the destination's rank. Only one
+ * card at a time can be moved to a foundation pile.
  * 
- * 9. The other form of valid input is simply a 'd', which deals a single card
- * from the stock to the waste.
- * 
- * 10. The game is won if each of the four foundations contains 13 cards (which
+ * c) <d> deals a single card from the stock to the waste.
+ *
+ * d) <u#> turns up a face down card on a tableau pile.
+ *
+ * 11. The game is won if each of the four foundations contains 13 cards (which
  * means that the stock, waste, and tableaus will be empty).
  * 
  * ===========================================================*/

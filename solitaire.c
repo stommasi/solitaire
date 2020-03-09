@@ -279,6 +279,7 @@ int exec_input(char s[])
 	else if (n == 1) {
 		/* If the stock is empty, then the waste becomes the new stock. */
 		if (stock.pointer == 0) {
+			waste.pile[waste.pointer - 1].faceup = false;
 			for (i = waste.pointer - 1; i >= 0; i--) {
 				push(waste.pile[i], &stock);
 			}

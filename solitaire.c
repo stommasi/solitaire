@@ -5,7 +5,7 @@
  * The basic logic of this implementation of solitaire is as follows:
  *
  * 1. Shuffle a deck of 52 cards.
-
+ *
  * 2. Dealing from the top of the deck, make seven piles (tableaus) of cards.
  * The pile number (1, 2, 3, 4, 5, 6, or 7) must contain a number of cards
  * equal to the pile number (1 card in pile 1, 2 cards in pile 2, etc.). The
@@ -38,9 +38,9 @@
  * that specified block is the source card against which the above conditions
  * are tested. No number specified defaults to one.
  * 
- * b) <w|f#|t#><f#> if the source is of the same suit as the destination and the
- * source's rank is one higher than that of the destination's rank. Only one
- * card at a time can be moved to a foundation pile.
+ * b) <w|f#|t#><f#> if the source is of the same suit as the destination and
+ * the source's rank is one higher than that of the destination's rank. Only
+ * one card at a time can be moved to a foundation pile.
  * 
  * c) <d> deals a single card from the stock to the waste.
  *
@@ -94,37 +94,34 @@ char destc;
 struct pile_type total_cards;
 int total_cards_count;
 
-void shuffle();
-void init_deal();
-int get_input(char s[]);
-int exec_input(char s[]);
-int verify_input(char s[]);
-int move_card(struct pile_type *srcp, struct pile_type *destp, char destc);
-void init_curses();
-void push(struct card_type card, struct pile_type *stock);
-struct card_type pop(struct pile_type *stock);
-void print_info();
-int get_rank_value(struct card_type card);
-int get_suit_value (struct card_type card);
-
-int main()
+void push(struct card_type card, struct pile_type *stock)
 {
-	int n;
-	int h, w;
+	int i;
 
-	init_curses();
-	getmaxyx(stdscr, h, w);
-	shuffle();
-	init_deal();
-	print_info();
-	while (get_input(inputstr)) {
-		exec_input(inputstr);
-		print_info();
-		if (fnd[0].pointer == 13 && fnd[1].pointer == 13 && \
-	fnd[2].pointer == 13 && fnd[3].pointer == 13)
-			break;
-	}
-	endwin();
+	stock->pile[stock->pointer++] = card;
+}
+
+struct card_type pop(struct pile_type *stock)
+{
+	return stock->pile[(stock->pointer--)-1];
+}
+
+int get_rank_value (struct card_type card)
+{
+	int i;
+
+	for (i = 0; i <= 13; i++)
+		if (card.rank == rank_value[i])
+			return i;
+}
+
+int get_suit_value (struct card_type card)
+{
+	int i;
+
+	for (i = 0; i < 4; i++)
+		if (card.suit == suit_value[i])
+			return i;
 }
 
 /* Move a card to a destination, either a tableau, foundation, or the waste. */
@@ -339,36 +336,6 @@ int get_input(char s[])
 	return (s[0] != 'q');
 }
 
-void push(struct card_type card, struct pile_type *stock)
-{
-	int i;
-
-	stock->pile[stock->pointer++] = card;
-}
-
-struct card_type pop(struct pile_type *stock)
-{
-	return stock->pile[(stock->pointer--)-1];
-}
-
-int get_suit_value (struct card_type card)
-{
-	int i;
-
-	for (i = 0; i < 4; i++)
-		if (card.suit == suit_value[i])
-			return i;
-}
-
-int get_rank_value (struct card_type card)
-{
-	int i;
-
-	for (i = 0; i <= 13; i++)
-		if (card.rank == rank_value[i])
-			return i;
-}
-
 /* Randomize the order of the deck. */
 void shuffle()
 {
@@ -495,4 +462,24 @@ void init_curses()
 	intrflush(stdscr, FALSE);
 	keypad(stdscr, TRUE);
 	curs_set(1);
+}
+
+int main()
+{
+	int n;
+	int h, w;
+
+	init_curses();
+	getmaxyx(stdscr, h, w);
+	shuffle();
+	init_deal();
+	print_info();
+	while (get_input(inputstr)) {
+		exec_input(inputstr);
+		print_info();
+		if (fnd[0].pointer == 13 && fnd[1].pointer == 13 && \
+			fnd[2].pointer == 13 && fnd[3].pointer == 13)
+			break;
+	}
+	endwin();
 }

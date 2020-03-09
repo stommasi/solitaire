@@ -433,16 +433,6 @@ void init_deal()
 	temppile.pointer = 0;
 }
 
-void search_doubles()
-{
-	int i, j;
-	for (i = 0; i < 52; i++)
-		for (j = 0; j < 52; j++)
-			if (total_cards.pile[i].rank == total_cards.pile[j].rank && \
-				total_cards.pile[i].suit == total_cards.pile[j].suit && i != j)
-				printw("\nDouble found! [%c%c]", total_cards.pile[i].rank, total_cards.pile[i].suit);
-}
-
 /* Print out an informational representation of the current state of a
  * pile, consisting of a row of square-bracket-enclosed two-character
  * card representations, the first character being the rank and the
@@ -491,7 +481,6 @@ void print_info()
 		printw("\nFOUNDATION %d\n\n", i+1);
 	}
 
-	search_doubles();
 	refresh();
 }
 

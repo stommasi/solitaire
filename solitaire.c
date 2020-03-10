@@ -64,19 +64,21 @@ struct card_type {
 	bool faceup;
 };
 
-struct card_type deck[52] = {{'2','H'},{'2','D'},{'2','C'},{'2','S'},
-					 		 {'3','H'},{'3','D'},{'3','C'},{'3','S'},
-					 		 {'4','H'},{'4','D'},{'4','C'},{'4','S'},
-					 		 {'5','H'},{'5','D'},{'5','C'},{'5','S'},
-					 		 {'6','H'},{'6','D'},{'6','C'},{'6','S'},
-					 		 {'7','H'},{'7','D'},{'7','C'},{'7','S'},
-					 		 {'8','H'},{'8','D'},{'8','C'},{'8','S'},
-					 		 {'9','H'},{'9','D'},{'9','C'},{'9','S'},
-					 		 {'0','H'},{'0','D'},{'0','C'},{'0','S'},
-					 		 {'J','H'},{'J','D'},{'J','C'},{'J','S'},
-					 		 {'Q','H'},{'Q','D'},{'Q','C'},{'Q','S'},
-					 		 {'K','H'},{'K','D'},{'K','C'},{'K','S'},
-					 		 {'A','H'},{'A','D'},{'A','C'},{'A','S'}};
+struct card_type deck[52] = {
+	{'2','H'},{'2','D'},{'2','C'},{'2','S'},
+	{'3','H'},{'3','D'},{'3','C'},{'3','S'},
+	{'4','H'},{'4','D'},{'4','C'},{'4','S'},
+	{'5','H'},{'5','D'},{'5','C'},{'5','S'},
+	{'6','H'},{'6','D'},{'6','C'},{'6','S'},
+	{'7','H'},{'7','D'},{'7','C'},{'7','S'},
+	{'8','H'},{'8','D'},{'8','C'},{'8','S'},
+	{'9','H'},{'9','D'},{'9','C'},{'9','S'},
+	{'0','H'},{'0','D'},{'0','C'},{'0','S'},
+	{'J','H'},{'J','D'},{'J','C'},{'J','S'},
+	{'Q','H'},{'Q','D'},{'Q','C'},{'Q','S'},
+	{'K','H'},{'K','D'},{'K','C'},{'K','S'},
+	{'A','H'},{'A','D'},{'A','C'},{'A','S'}
+};
 
 struct pile_type {
 	struct card_type pile[52];
@@ -94,45 +96,55 @@ char destc;
 struct pile_type total_cards;
 int total_cards_count;
 
-void push(struct card_type card, struct pile_type *stock)
+void 
+push(
+	struct card_type card,
+	struct pile_type *stock)
 {
-	int i;
-
 	stock->pile[stock->pointer++] = card;
 }
 
-struct card_type pop(struct pile_type *stock)
+struct card_type 
+pop(
+	struct pile_type *stock)
 {
-	return stock->pile[(stock->pointer--)-1];
+	return stock->pile[(stock->pointer--) - 1];
 }
 
-int get_rank_value (struct card_type card)
+int 
+get_rank_value(
+	struct card_type card)
 {
-	int i;
-
-	for (i = 0; i <= 13; i++)
+	for (int i = 0; i <= 13; i++)
 		if (card.rank == rank_value[i])
 			return i;
+	return -1;
 }
 
-int get_suit_value (struct card_type card)
+int 
+get_suit_value(
+	struct card_type card)
 {
 	int i;
 
 	for (i = 0; i < 4; i++)
 		if (card.suit == suit_value[i])
 			return i;
+	return -1;
 }
 
 /* Move a card to a destination, either a tableau, foundation, or the waste. */
-int move_card(struct pile_type *srcp, struct pile_type *destp, char destc)
+int 
+move_card(
+	struct pile_type *srcp,
+	struct pile_type *destp,
+	char destc)
 {
-	int i;
 	struct card_type card_src, card_dest;
 
 	/* Copy the appropriate cards to temporary structs for comparison. */
-	card_src = srcp->pile[(srcp->pointer)-1];
-	card_dest = destp->pile[(destp->pointer)-1];
+	card_src = srcp->pile[(srcp->pointer) - 1];
+	card_dest = destp->pile[(destp->pointer) - 1];
 
 	/* Do not permit moving a face-down card, unless it's from the stock. */
 	if (srcp != &stock && !card_src.faceup)
@@ -145,8 +157,8 @@ int move_card(struct pile_type *srcp, struct pile_type *destp, char destc)
 		 * 2) and if the suits are opposite colors (see suit_value[]).
 		 * 3) Or, if destination is empty, test if the source is a king.*/ 
 		if ((((get_rank_value(card_src) == get_rank_value(card_dest) - 1) && \
-			 ((get_suit_value(card_src) + get_suit_value(card_dest)) % 2 != 0))) || \
-			  (get_rank_value(card_src) == 12 && destp->pointer == 0)) {
+			((get_suit_value(card_src) + get_suit_value(card_dest)) % 2 != 0))) || \
+			(get_rank_value(card_src) == 12 && destp->pointer == 0)) {
 			push(pop(srcp), destp);
 			return 1;
 		}
@@ -160,7 +172,7 @@ int move_card(struct pile_type *srcp, struct pile_type *destp, char destc)
 		}
 		/* Or move if the source is one rank higher than the destination. */
 		if ((get_rank_value(card_src) == get_rank_value(card_dest) + 1) && \
-	(get_suit_value(card_src) == get_suit_value(card_dest))) {
+			(get_suit_value(card_src) == get_suit_value(card_dest))) {
 			push(pop(srcp), destp);
 			return 1;
 		}
@@ -178,14 +190,16 @@ int move_card(struct pile_type *srcp, struct pile_type *destp, char destc)
 
 /* Make sure the input command is valid and return a number that corresponds
  * to the type of move being made (interpreted by exec_input). */
-int verify_input(char s[])
+int 
+verify_input(
+	char s[])
 {
 	int i, n;
 	char c;
 
-	i = 0;
 	/* Leading digits indicate how many cards to move at a time
 	 * (none is fine too, this defaults to one card). */
+	i = 0;
 	while (isdigit(c = s[i]))
 		i++;
 	/* If the first letter is a 'd' (deal), then point to the stock and
@@ -253,16 +267,16 @@ int verify_input(char s[])
 	return 0;
 }
 
-int exec_input(char s[])
+void 
+exec_input(
+	char s[])
 {
-	int n;
 	int i;
-	int mult;
 	char multstr[2];
 
 	/* Verifying the input string returns a number between 0 and 4,
 	 * indicating various kinds of commands. */
-	n = verify_input(s);
+	int n = verify_input(s);
 
 	/* Collect the initial digits of the string indicating how many
 	 * cards to move. */
@@ -277,7 +291,6 @@ int exec_input(char s[])
 	if (n == 0) {
 		printw("Invalid input!");
 		getch();
-		return 0;
 	}
 	/* 1 returned means deal. */
 	else if (n == 1) {
@@ -299,7 +312,7 @@ int exec_input(char s[])
 	}
 	/* 3 returned means move from tableau or foundation. */
 	else if (n == 3) {
-		mult = atoi(multstr);
+		int mult = atoi(multstr);
 		if (mult == 0)
 			mult++;
 		/* Move mult cards from the source pile to temppile. */
@@ -315,7 +328,7 @@ int exec_input(char s[])
 			}
 		}
 	}
-	/* 4 returns means turn up a tableau card. */
+	/* 4 returned means turn up a tableau card. */
 	else if (n == 4) {
 		/* Get the tableau digit from the string (which should look like
 		 * 'ut3'), convert it to a number, reduce by one for index. */
@@ -326,18 +339,22 @@ int exec_input(char s[])
 
 /* Use curses library to get input string. Return false if 'q' is
  * entered. */
-int get_input(char s[])
+int 
+get_input(
+	char s[])
 {
 	int h, w;
 
 	getmaxyx(stdscr, h, w);
-	mvprintw(h-1, 0, ":");
+	w = 0;
+	mvprintw(h - 1, w, ":");
 	getstr(s);
 	return (s[0] != 'q');
 }
 
 /* Randomize the order of the deck. */
-void shuffle()
+void 
+shuffle()
 {
 	int i, r;
 	struct card_type t;
@@ -362,18 +379,17 @@ void shuffle()
  * like-suited successively ranked cards), and finally a temporary
  * pile which is necessary for the underlying logic but does not
  * appear in gameplay. */
-void init_deal()
+void 
+init_deal()
 {
-	int i, j;
-	int deckp;
+	int deckp = 51;
 
 	/* Make 7 tableaus, each of which has as many cards as its index
 	 * number, so that the first one gets one card, the second two,
 	 * etc. Take these cards from the deck. Only the topmost card's
 	 * face-up value should be true. */
-	deckp = 51;
-	for (i = 0; i < 7; i++) {
-		for (j = 0; j <= i; j++) {
+	for (int i = 0; i < 7; i++) {
+		for (int j = 0; j <= i; j++) {
 			tab[i].pile[j] = deck[deckp--];
 			if (i == j)
 				tab[i].pile[j].faceup = true;
@@ -385,7 +401,7 @@ void init_deal()
 
 	/* Fill the stock with the remaining cards from the deck. None
 	 * should be face-up. */
-	i = 0;
+	int i = 0;
 	while (deckp >= 0) {
 		stock.pile[i++] = deck[deckp--];
 		stock.pile[i-1].faceup = false;
@@ -394,7 +410,7 @@ void init_deal()
 	/* Set up four empty foundations, one empty waste, and one empty
 	 * temppile. */
 	stock.pointer = i;
-	for (i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++)
 		fnd[i].pointer = 0;
 	waste.pointer = 0;
 	temppile.pointer = 0;
@@ -404,7 +420,9 @@ void init_deal()
  * pile, consisting of a row of square-bracket-enclosed two-character
  * card representations, the first character being the rank and the
  * second the suit. */
-void print_pile(struct pile_type *stock)
+void 
+print_pile(
+	struct pile_type *stock)
 {
 	int i;
 	/* Iterate as far as the pointer points in the stock. Print full
@@ -428,10 +446,9 @@ void print_pile(struct pile_type *stock)
 
 /* Print out a label for each pile and call the function to print the
  * pile itself. */
-void print_info()
+void 
+print_info()
 {
-	int i, j;
-
 	total_cards_count = 0;
 
 	clear();
@@ -439,11 +456,11 @@ void print_info()
 	printw("\nSTOCK\n\n");
 	print_pile(&waste);
 	printw("\nWASTE\n\n");
-	for (i = 0; i < 7; i++) {
+	for (int i = 0; i < 7; i++) {
 		print_pile(&tab[i]);
 		printw("\nTABLEAU %d\n\n", i+1);
 	}
-	for (i = 0; i < 4; i++) {
+	for (int i = 0; i < 4; i++) {
 		print_pile(&fnd[i]);
 		printw("\nFOUNDATION %d\n\n", i+1);
 	}
@@ -452,11 +469,13 @@ void print_info()
 }
 
 /* Initialize curses. */
-void init_curses()
+void 
+init_curses()
 {
 	initscr();
 	start_color();
-	init_pair(1, COLOR_RED, COLOR_BLACK);
+	use_default_colors();
+	init_pair(1, COLOR_RED, -1);
 	cbreak();
 	nonl();
 	intrflush(stdscr, FALSE);
@@ -464,13 +483,10 @@ void init_curses()
 	curs_set(1);
 }
 
-int main()
+int 
+main()
 {
-	int n;
-	int h, w;
-
 	init_curses();
-	getmaxyx(stdscr, h, w);
 	shuffle();
 	init_deal();
 	print_info();

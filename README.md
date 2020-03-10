@@ -25,21 +25,21 @@ ultimately builds up four "foundations" with ascending ranks of the same suit.
 The piles, represented as a string of square-bracket-enclosed cards, are
 properly labeled underneath.
 
-Input takes the form of <label><label>. The piles are labeled in the output as
+Input takes the form of \<label\>\<label\>. The piles are labeled in the output as
 w (waste); f1, f2, f3, f4 (foundations); t1, t2, t3, t4, t5, t6, t7 (tableau).
-The first <label> refers to where the card you want to move currently is.  The
-second <label> refers to where you want it to go.
+The first \<label\> refers to where the card you want to move currently is.  The
+second \<label\> refers to where you want it to go.
 
 The following are valid input. Angle brackets contain required input, square
 brackets contain optional input, the bar symbol separates exclusive possible
 inputs, and the pound sign is a number.
 
-a) [#]<w|f#|t#><f#|t#> The initial, optional number indicates how many cards
+a) [#]<w|f#|t#>\<f#|t#\> The initial, optional number indicates how many cards
 you would like to move at once and that the bottom card of that specified block
 is the source card against which the above conditions are tested. If no number
 is specified, the operation defaults to one. Only one card at a time can be
 moved to a foundation pile.
 
-b) <d> deals a single card from the stock to the waste.
+b) \<d\> deals a single card from the stock to the waste.
 
-c) <ut#> turns up a face down card on a tableau pile.
+c) \<ut#\> turns up a face down card on a tableau pile.
